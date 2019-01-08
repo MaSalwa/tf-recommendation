@@ -70,6 +70,18 @@ def _get_train_test_ratings(with_header, delimiter, input_file):
 
 
 def _get_ordering_info(ratings_df, specify_id):
+    """This function performs some computations to tell if making\
+       indexes for users of items is necessary or not
+
+    Arguments:
+        ratings_df {pandas data frame} -- Ratings dataset
+        specify_id {string} -- 'user_id' or 'item_id' to be processed
+
+    Returns:
+        tuple -- contains boolean to indicate if the ids are unordered,\
+                 the unordered ids, the ordered unique ids array, \
+                 the maximum id number and the count of ids
+    """
     if specify_id == 'user_id' or specify_id == 'item_id':
         # entity can be user or item
         unordered_entity = ratings_df[str(specify_id)].as_matrix()
