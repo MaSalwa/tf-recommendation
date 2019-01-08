@@ -98,6 +98,19 @@ def _get_ordering_info(ratings_df, specify_id):
 
 
 def _order_ids(unordered_entity, unique_entity, max_entity, nb_entity):
+    """This function is called only if making 0-indexed ids is needed.\
+       It creates an array that contains ordered 0-indexed unique ids\
+       mapping to the original unordered ids.
+
+    Arguments:
+        unordered_entity {numpy matrix} -- the original unordered ids
+        unique_entity {numpy array} -- unique ordered ids
+        max_entity {int} -- the biggest id value in the ordered unique array
+        nb_entity {int} -- the length of the ids array
+
+    Returns:
+        [numpy array] -- 0 indexed indices corresponding to original ones
+    """
     # make an array of 0-indexed unique entity ids
     zero_indexed = np.zeros(max_entity+1, dtype=int)
     zero_indexed[unique_entity] = np.arange(nb_entity)
