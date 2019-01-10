@@ -22,9 +22,8 @@ def create_train_test(input_file, data_type):
     Returns:
         [array] -- [user IDs for each row of the ratings matrix]
         [array] -- [array of item IDs for each column of the rating matrix]
-        TODO
-        [sparse] -- [coo_matrix for training]
-        [sparse] -- [coo_matrix for test]
+        [sparse] -- [scipy coo_matrix for training]
+        [sparse] -- [scipy coo_matrix for test]
     """
 
     if data_type == 'ratings':
@@ -38,6 +37,18 @@ def create_train_test(input_file, data_type):
 
 
 def _get_train_test_ratings(with_header, delimiter, input_file):
+    """This function process ratings data to extract user and item
+        ids, sparse train and test sets
+
+    Arguments:
+        with_header {boolean} -- True if file has header
+        delimiter {delimiters} -- delimiter used in the csv file
+        input_file {string} -- ratings csv file full path
+
+    Returns:
+        list -- contains 0-indexed user and item ids array and
+                COO format sparse train and test matrices
+    """
     if with_header:
         header_index = 0
     else:
@@ -124,6 +135,18 @@ def _order_ids(unordered_entity, unique_entity, max_entity, nb_entity):
 
 
 def _get_sparse_train_test(ratings, nb_user, nb_item):
+    """Divide ratings data into train and test sets
+       and transform them into scipy coo sparse matrices
+
+    Arguments:
+        ratings {numpy matrix} -- processed 0-indexed user
+                                  and item ids ratings dataset
+        nb_user {int} -- number of users
+        nb_item {int} -- number of items
+
+    Returns:
+        list --  sparse scipy coo matrix test and train
+    """
     l = len(ratings)
     test_set_size = l / TEST_SET_RATIO
     # pick random test set of entries, in ascending order
@@ -138,6 +161,19 @@ def _get_sparse_train_test(ratings, nb_user, nb_item):
 
 
 def _create_coo_matrix(ratings_part, nb_user, nb_item):
+    """takes rating partitioned in either train or test,
+        unzips them into user, item and ratings arrays
+        and creates scipy coo matrics from them
+
+    Arguments:
+        ratings_part {numpy array} -- partioned ratings data
+        nb_user {int} -- number of users
+        nb_item {int} -- number of items
+
+    Returns:
+        scipy coo sparse -- matrix of ratings partioned (train or test)
+    """
+
     # "part" is the partition, train or test
     # unzipping values to get the user, item and ratings seperately
     user_p, item_p, rating_p = zip(*ratings_part)
