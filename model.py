@@ -1,6 +1,10 @@
 import os
 import numpy as np
 import pandas as pd
+from scipy.sparse import coo_matrix
+
+# ratio of train to test set size
+TEST_SET_RATIO = 10
 
 
 def create_train_test(input_file, data_type):
@@ -65,8 +69,9 @@ def _get_train_test_ratings(with_header, delimiter, input_file):
         # deal with 1-based indices
         ratings[:, 0] -= 1
         ratings[:, 1] -= 1
-
-    return ratings
+    sparse_train, sparse_test = _get_sparse_train_test(ratings,
+                                                       nb_user, nb_item)
+    return ratings[:, 0], ratings[:, 1], sparse_train, sparse_test
 
 
 def _get_ordering_info(ratings_df, specify_id):
@@ -116,3 +121,26 @@ def _order_ids(unordered_entity, unique_entity, max_entity, nb_entity):
     zero_indexed[unique_entity] = np.arange(nb_entity)
     entity_r = zero_indexed[unordered_entity]
     return entity_r
+
+
+def _get_sparse_train_test(ratings, nb_user, nb_item):
+    l = len(ratings)
+    test_set_size = l / TEST_SET_RATIO
+    # pick random test set of entries, in ascending order
+    test_set_idx = sorted(np.random.choice(xrange(l),
+                          size=test_set_size, replace=False))
+    # divide ratings into train and test sets
+    ratings_test = ratings[test_set_idx]
+    ratings_train = np.delete(ratings, test_set_idx, axis=0)
+    sparse_test = _create_coo_matrix(ratings_test, nb_user, nb_item)
+    sparse_train = _create_coo_matrix(ratings_train, nb_user, nb_item)
+    return sparse_test, sparse_train
+
+
+def _create_coo_matrix(ratings_part, nb_user, nb_item):
+    # "part" is the partition, train or test
+    # unzipping values to get the user, item and ratings seperately
+    user_p, item_p, rating_p = zip(*ratings_part)
+    sparse_part = coo_matrix((rating_p, (user_p, item_p)),
+                             shape=(nb_user, nb_item))
+    return sparse_part
