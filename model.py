@@ -28,10 +28,9 @@ def create_train_test(input_file, data_type):
 
     if data_type == 'ratings':
         return _get_train_test_ratings(True, ',', input_file)
-        # TODO: return sparse train and test sets
-    elif data_type == 'web_views':
-        # TODO: handle web_views case
-        return _get_train_test_page_views(input_file)
+    # TODO: handle web_views case
+    # elif data_type == 'web_views':
+    #    return _get_train_test_page_views(input_file)
     else:
         raise ValueError('unrecognized data type %s not supported' % data_type)
 
